@@ -1,0 +1,79 @@
+<script lang="ts">
+  import { onMount } from "svelte";
+  import { Grid, gridHelp } from "$lib";
+  import type { GridItem, ColsDefinition } from "$lib";
+
+  const id = () => "_" + Math.random().toString(36).substr(2, 9);
+  const cols: ColsDefinition = [[1100, 6]];
+
+  let useWindow = $state(false);
+  let sensor = $state(20);
+  let container = $state<HTMLElement | undefined>(undefined);
+  let documentRoot: Element | undefined;
+
+  const scroller = $derived(useWindow ? documentRoot : container);
+
+  onMount(() => {
+    documentRoot = document.documentElement;
+  });
+
+  let items = $state<GridItem[]>([
+    { id: id(), 6: gridHelp.item({ x: 0, y: 0, w: 2, h: 20 }) },
+    { id: id(), 6: gridHelp.item({ x: 2, y: 0, w: 2, h: 2 }) },
+  ]);
+</script>
+
+<svelte:head>
+  <title>Example — Autoscroll</title>
+</svelte:head>
+
+<div class="example-page">
+  <h2>Autoscroll</h2>
+  <p>
+    Drag a card near the edge of the scroll container to trigger autoscroll.
+    Pass a <code>scroller</code> prop to use a custom container, or omit it for the document root.
+  </p>
+
+  <div class="controls">
+    <label>
+      <input type="checkbox" bind:checked={useWindow} />
+      Use document root
+    </label>
+    <label>
+      Sensor
+      <input type="number" bind:value={sensor} min={5} max={100} style="width: 60px;" />
+    </label>
+  </div>
+
+  <div class="scroll-box" class:no-clip={useWindow} bind:this={container}>
+    <Grid bind:items {cols} rowHeight={100} scroller={scroller as HTMLElement | undefined} {sensor}>
+      {#snippet children({ dataItem })}
+        <div class="demo-widget">{dataItem.id}</div>
+      {/snippet}
+    </Grid>
+  </div>
+</div>
+
+<style>
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+  }
+
+  .scroll-box {
+    max-height: 300px;
+    overflow-y: scroll;
+    background: #eee;
+    padding: 10px;
+    border-radius: 6px;
+  }
+
+  .scroll-box.no-clip {
+    max-height: none;
+    overflow: visible;
+  }
+</style>
