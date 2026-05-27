@@ -107,16 +107,19 @@
   });
 
   // --- autoCompress: compact items whenever they change externally ---
-  // Guard against infinite loops: skip when the change came from us.
-  let _internalItems = $state<GridItem[] | null>(null);
+  // Guard: plain (non-reactive) boolean so it never becomes an $effect dependency.
+  // Svelte 5 wraps $state arrays in a Proxy, so reference-equality checks between
+  // the original array and its proxied form always fail — use a flip-flop flag instead.
+  let _autoCompressLock = false;
   $effect(() => {
-    if (!autoCompress) return;
-    const current = items;
-    if (current === _internalItems) return;
-    if (!getComputedCols) return;
-    const compressed = compactY(current, getComputedCols);
-    _internalItems = compressed;
-    items = compressed;
+    if (!autoCompress || !getComputedCols) return;
+    if (_autoCompressLock) {
+      // This run was triggered by our own write below — skip and reset.
+      _autoCompressLock = false;
+      return;
+    }
+    _autoCompressLock = true;
+    items = compactY(items, getComputedCols);
   });
 
   // --- Event handlers ---
