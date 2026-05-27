@@ -43,6 +43,9 @@
 
   .content {
     flex: 1;
+    display: flex; 
+    flex-direction: column;
+    height: 100%;
     padding: 0 10px;
   }
 

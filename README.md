@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/TypeScript-ready-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript"/>
 </p>
 
-![svelte-grid demo](https://res.cloudinary.com/dmtrk3yns/video/upload/q_auto/v1565455366/ice_video_20190810-202954_fuquxt.gif)
+![svelte-grid demo](https://s13.gifyu.com/images/bITel.gif)
 
 A responsive, draggable and resizable grid layout for **Svelte 5**, with full TypeScript support.
 

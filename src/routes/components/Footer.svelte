@@ -9,6 +9,7 @@
     text-align: center;
     color: #666;
     font-size: 0.9em;
+    margin-top: auto;
   }
 
   .footer a {
