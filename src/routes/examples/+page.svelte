@@ -35,6 +35,7 @@
     <a href="/examples/rows-bounds">Rows &amp; Bounds</a>
     <a href="/examples/controller">Grid Controller</a>
     <a href="/examples/auto-compress">Auto Compress</a>
+    <a href="/examples/collision">Collision Behavior</a>
   </nav>
   <p>Select an example above to see it in action.</p>
 </div>

@@ -351,6 +351,7 @@
   aria-label="Grid item — arrows to move, Shift+arrows to resize"
   class="svlt-grid-item"
   class:svlt-grid-active={active || (trans && rect)}
+  class:svlt-grid-item--draggable={!item?.customDragger && draggable && !readOnly}
   style={itemStyle}
 >
   {@render children(pointerdown, resizePointerDownSE)}
@@ -384,6 +385,27 @@
 {/if}
 
 <style>
+  /*
+   * ─── CSS Custom Properties ───────────────────────────────────────────────────
+   *
+   * All visual tokens are exposed as custom properties so consumers can theme
+   * the grid without :global() hacks.  Override them on .svlt-grid-container
+   * (or any ancestor) to apply a custom theme.
+   *
+   * Tailwind / shadcn-svelte example:
+   *   :global(.svlt-grid-container) {
+   *     --svlt-shadow-bg:      hsl(var(--muted));
+   *     --svlt-shadow-radius:  var(--radius);
+   *     --svlt-focus-ring:     hsl(var(--ring));
+   *     --svlt-handle-color:   hsl(var(--muted-foreground));
+   *   }
+   *
+   * When the grid prop `unstyled={true}` is set, the container gains the class
+   * `.svlt-unstyled` and all cosmetic defaults below are suppressed so you can
+   * apply your own styles via Tailwind utilities or arbitrary CSS.
+   */
+
+  /* ── Functional (always applied, even with unstyled) ── */
   .svlt-grid-item {
     touch-action: none;
     position: absolute;
@@ -393,92 +415,53 @@
     outline: none;
   }
 
-  .svlt-grid-item:focus-visible {
-    outline: 2px solid #4a90e2;
-    outline-offset: 2px;
-    z-index: 1;
-  }
-
   .svlt-grid-resizer {
     user-select: none;
     position: absolute;
-    z-index: 4;
+    z-index: var(--svlt-handle-z, 4);
   }
 
-  .svlt-grid-resizer--se {
-    width: 20px;
-    height: 20px;
-    right: 0;
-    bottom: 0;
-    cursor: se-resize;
-  }
-  .svlt-grid-resizer--sw {
-    width: 20px;
-    height: 20px;
-    left: 0;
-    bottom: 0;
-    cursor: sw-resize;
-  }
-  .svlt-grid-resizer--ne {
-    width: 20px;
-    height: 20px;
-    right: 0;
-    top: 0;
-    cursor: ne-resize;
-  }
-  .svlt-grid-resizer--nw {
-    width: 20px;
-    height: 20px;
-    left: 0;
-    top: 0;
-    cursor: nw-resize;
-  }
+  /* Corner handles */
+  .svlt-grid-resizer--se { right:  0; bottom: 0; cursor: se-resize; width:  var(--svlt-handle-corner, 20px); height: var(--svlt-handle-corner, 20px); }
+  .svlt-grid-resizer--sw { left:   0; bottom: 0; cursor: sw-resize; width:  var(--svlt-handle-corner, 20px); height: var(--svlt-handle-corner, 20px); }
+  .svlt-grid-resizer--ne { right:  0; top:    0; cursor: ne-resize; width:  var(--svlt-handle-corner, 20px); height: var(--svlt-handle-corner, 20px); }
+  .svlt-grid-resizer--nw { left:   0; top:    0; cursor: nw-resize; width:  var(--svlt-handle-corner, 20px); height: var(--svlt-handle-corner, 20px); }
 
+  /* Edge handles — inset past the corner handles so they don't overlap */
   .svlt-grid-resizer--n {
-    height: 8px;
-    left: 20px;
-    right: 20px;
+    height: var(--svlt-handle-edge, 8px);
+    left:   var(--svlt-handle-corner, 20px);
+    right:  var(--svlt-handle-corner, 20px);
     top: 0;
     cursor: n-resize;
   }
   .svlt-grid-resizer--s {
-    height: 8px;
-    left: 20px;
-    right: 20px;
+    height: var(--svlt-handle-edge, 8px);
+    left:   var(--svlt-handle-corner, 20px);
+    right:  var(--svlt-handle-corner, 20px);
     bottom: 0;
     cursor: s-resize;
   }
   .svlt-grid-resizer--e {
-    width: 8px;
-    top: 20px;
-    bottom: 20px;
+    width:  var(--svlt-handle-edge, 8px);
+    top:    var(--svlt-handle-corner, 20px);
+    bottom: var(--svlt-handle-corner, 20px);
     right: 0;
     cursor: e-resize;
   }
   .svlt-grid-resizer--w {
-    width: 8px;
-    top: 20px;
-    bottom: 20px;
+    width:  var(--svlt-handle-edge, 8px);
+    top:    var(--svlt-handle-corner, 20px);
+    bottom: var(--svlt-handle-corner, 20px);
     left: 0;
     cursor: w-resize;
   }
 
-  .svlt-grid-resizer--se::after {
-    content: "";
-    position: absolute;
-    right: 3px;
-    bottom: 3px;
-    width: 5px;
-    height: 5px;
-    border-right: 2px solid rgba(0, 0, 0, 0.4);
-    border-bottom: 2px solid rgba(0, 0, 0, 0.4);
-  }
-
   .svlt-grid-active {
-    z-index: 3;
-    cursor: grabbing;
+    z-index: var(--svlt-active-z, 3);
+    cursor: var(--svlt-cursor-grabbing, grabbing);
     position: fixed;
-    opacity: 0.5;
+    opacity: var(--svlt-active-opacity, 0.5);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     user-select: none;
@@ -492,8 +475,34 @@
   .svlt-grid-shadow {
     position: absolute;
     will-change: transform;
-    background: rgba(0, 0, 0, 0.15);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+  }
+
+  /* ── Cosmetic defaults (suppressed when .svlt-unstyled is on the container) ── */
+  :global(:not(.svlt-unstyled)) > .svlt-grid-item:focus-visible {
+    outline: 2px solid var(--svlt-focus-ring, #4a90e2);
+    outline-offset: 2px;
+    z-index: 1;
+  }
+
+  :global(:not(.svlt-unstyled)) .svlt-grid-item--draggable {
+    cursor: var(--svlt-cursor-grab, grab);
+  }
+
+  :global(:not(.svlt-unstyled)) .svlt-grid-resizer--se::after {
+    content: "";
+    position: absolute;
+    right: 3px;
+    bottom: 3px;
+    width: 5px;
+    height: 5px;
+    border-right: 2px solid var(--svlt-handle-color, rgba(0, 0, 0, 0.4));
+    border-bottom: 2px solid var(--svlt-handle-color, rgba(0, 0, 0, 0.4));
+  }
+
+  :global(:not(.svlt-unstyled)) .svlt-grid-shadow {
+    background: var(--svlt-shadow-bg, rgba(0, 0, 0, 0.15));
+    border-radius: var(--svlt-shadow-radius, 0px);
   }
 </style>

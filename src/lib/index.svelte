@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { Snippet } from "svelte";
-  import type { GridItem, BreakpointItem, ColsDefinition, Gap, ExternalDropEvent } from "./types.js";
+  import type { GridItem, BreakpointItem, ColsDefinition, Gap, ExternalDropEvent, CollisionBehavior } from "./types.js";
   import { GridController } from "./GridController.svelte.js";
+  import { setGridContext } from "./context.js";
   import { getContainerHeight } from "./utils/container.js";
   import { moveItemsAroundItem, moveItem, getItemById, specifyUndefinedColumns, compactY } from "./utils/item.js";
   import { getColumn } from "./utils/other.js";
@@ -45,6 +46,19 @@
     controller?: GridController;
     /** Automatically compact items upward whenever `items` changes externally. */
     autoCompress?: boolean;
+    /**
+     * How items respond when the dragged item overlaps them.
+     * - `"push"` (default) — overlapping items move to the nearest free space.
+     * - `"none"` — only the dragged item moves; others may overlap.
+     * - `"compress"` — push, then compact all items upward.
+     */
+    collision?: CollisionBehavior;
+    /**
+     * Remove all cosmetic default styles (shadow colour, grab cursor, focus ring,
+     * resize-handle indicator). Functional layout styles are always kept.
+     * Use this when you want to style the grid entirely with Tailwind / shadcn.
+     */
+    unstyled?: boolean;
     children: Snippet<[SnippetArgs]>;
     onmount?: (event: MountEvent) => void;
     onresize?: (event: ResizeEvent) => void;
@@ -72,6 +86,8 @@
     bounds = false,
     controller = $bindable<GridController | undefined>(undefined),
     autoCompress = false,
+    collision = "push" as CollisionBehavior,
+    unstyled = false,
     children: renderItem,
     onmount,
     onresize,
@@ -96,6 +112,17 @@
   const gapY = $derived(gap[1]);
   const yPerPx = $derived(rowHeight);
   const containerHeight = $derived(getContainerHeight(items, yPerPx, getComputedCols, rows));
+
+  // --- Publish context so widgets inside snippets can read grid metrics ---
+  setGridContext({
+    xPerPx: () => xPerPx,
+    yPerPx: () => yPerPx,
+    cols: () => getComputedCols,
+    gapX: () => gapX,
+    gapY: () => gapY,
+    readOnly: () => readOnly,
+    collision: () => collision,
+  });
 
   // --- GridController wiring ---
   $effect(() => {
@@ -160,13 +187,18 @@
       },
     };
 
-    if (fillSpace) {
+    if (collision === "none") {
+      // Only the dragged item moves; others stay put and may overlap.
+      items = items.map((i) => (i.id === activeItem.id ? activeItem : i));
+    } else if (fillSpace) {
+      // Legacy fillSpace: rearrange items around the active one.
       items = moveItemsAroundItem(activeItem, items, getComputedCols, found);
     } else {
+      // "push" (default) and "compress": standard push collision.
       items = moveItem(activeItem, items, getComputedCols, found);
     }
 
-    if (compact) {
+    if (compact || collision === "compress") {
       items = compactY(items, getComputedCols);
     }
 
@@ -257,6 +289,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   class="svlt-grid-container"
+  class:svlt-unstyled={unstyled}
   style="height: {containerHeight}px"
   bind:this={container}
   role={onexternaldrop ? "region" : undefined}

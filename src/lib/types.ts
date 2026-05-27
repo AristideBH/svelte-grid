@@ -28,6 +28,15 @@ export type Gap = [gapX: number, gapY: number];
 /** Direction of a resize handle. */
 export type ResizeDir = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
 
+/**
+ * How items behave when a dragged item overlaps them.
+ *
+ * - `"push"` (default) — overlapping items are pushed to the nearest free space.
+ * - `"none"` — items may freely overlap; only the dragged item moves.
+ * - `"compress"` — like push, but all items are also compacted upward after each move.
+ */
+export type CollisionBehavior = "push" | "none" | "compress";
+
 /** Payload for onexternaldrop. */
 export interface ExternalDropEvent {
   x: number;

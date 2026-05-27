@@ -102,6 +102,8 @@ npm i svelte-grid
 | `controller` | `GridController` | — | Programmatic controller. Use `bind:controller` to access it |
 | `autoCompress` | `boolean` | `false` | Automatically compact items upward on every external `items` change |
 | `compact` | `boolean` | `false` | Compact items upward after every drag/resize |
+| `collision` | `"push"\|"none"\|"compress"` | `"push"` | Collision mode: push others away, allow overlap, or push + compact |
+| `unstyled` | `boolean` | `false` | Strip all cosmetic defaults (shadow, cursor, focus-ring) — ideal for Tailwind/shadcn theming |
 
 ---
 
@@ -250,6 +252,64 @@ Set `customDragger: true` on the item's breakpoint config, then attach `movePoin
 
 ---
 
+## CSS Custom Properties
+
+All visual tokens are exposed as CSS custom properties. Override them on `.svlt-grid-container` (or any ancestor):
+
+```css
+/* Plain CSS */
+:global(.svlt-grid-container) {
+  --svlt-handle-corner: 24px;   /* corner resize handle size */
+  --svlt-handle-edge:   10px;   /* edge resize handle thickness */
+  --svlt-shadow-bg:     rgba(99, 102, 241, 0.2);
+  --svlt-shadow-radius: 6px;
+  --svlt-active-opacity: 0.6;
+  --svlt-cursor-grab:    grab;
+  --svlt-cursor-grabbing: grabbing;
+  --svlt-focus-ring:     #4a90e2;
+  --svlt-handle-color:   rgba(0, 0, 0, 0.4);
+}
+```
+
+**Tailwind / shadcn-svelte** — set `unstyled={true}` on the Grid to remove all opinionated cosmetic defaults, then style with Tailwind utilities or map shadcn tokens:
+
+```css
+/* globals.css — map shadcn tokens to svelte-grid variables */
+:root {
+  --svlt-shadow-bg:     hsl(var(--muted));
+  --svlt-shadow-radius: var(--radius);
+  --svlt-focus-ring:    hsl(var(--ring));
+  --svlt-handle-color:  hsl(var(--muted-foreground));
+}
+```
+
+---
+
+## Svelte Context
+
+Any component rendered inside a Grid snippet can call `getGridContext()` to access live grid metrics without extra prop-drilling:
+
+```svelte
+<script>
+  import { getGridContext } from 'svelte-grid';
+  const grid = getGridContext(); // returns undefined outside a Grid
+</script>
+
+<p>Column width: {grid?.xPerPx()}px — {grid?.cols()} cols</p>
+<p>Read-only: {grid?.readOnly()}</p>
+```
+
+| Property | Type | Description |
+|---|---|---|
+| `xPerPx()` | `number` | Pixels per column |
+| `yPerPx()` | `number` | Pixels per row (rowHeight) |
+| `cols()` | `number` | Active column count |
+| `gapX()` / `gapY()` | `number` | Gap in pixels |
+| `readOnly()` | `boolean` | Current readOnly state |
+| `collision()` | `string` | Current collision mode |
+
+---
+
 ## Styling
 
 Use `:global(...)` to style internal elements:
@@ -280,9 +340,11 @@ All types are exported from the main entry point:
 ```ts
 import type {
   GridItem, BreakpointItem, ColsDefinition, Gap, SnippetArgs,
-  ResizeDir, ExternalDropEvent,
+  ResizeDir, ExternalDropEvent, CollisionBehavior,
   GridControllerInterface, NewItemInput, PixelRect, GridRect,
 } from 'svelte-grid';
+
+import { getGridContext, type GridContext } from 'svelte-grid';
 ```
 
 ---
