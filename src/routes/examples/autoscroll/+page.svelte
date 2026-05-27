@@ -52,6 +52,35 @@
       {/snippet}
     </Grid>
   </div>
+
+  <details class="source">
+    <summary>View source</summary>
+    <pre><code>{`<script lang="ts">
+  import { onMount } from 'svelte';
+  import Grid from 'svelte-grid';
+  import { gridHelp } from 'svelte-grid/helper';
+
+  let sensor = $state(20);           // autoscroll trigger zone in px
+  let container: HTMLElement;        // custom scroll container
+  let documentRoot: Element;
+
+  onMount(() => { documentRoot = document.documentElement; });
+
+  let items = $state([...]);
+<\/script>
+
+<div bind:this={container} style="max-height:300px; overflow-y:scroll;">
+  <!--
+    scroller: pass a custom scroll container, or omit for document root.
+    sensor:   proximity in px from the edge that triggers autoscroll.
+  -->
+  <Grid bind:items cols={[[1100, 6]]} rowHeight={100} scroller={container} {sensor}>
+    {#snippet children({ dataItem })}
+      <div style="height:100%">{dataItem.id}</div>
+    {/snippet}
+  </Grid>
+</div>`}</code></pre>
+  </details>
 </div>
 
 <style>

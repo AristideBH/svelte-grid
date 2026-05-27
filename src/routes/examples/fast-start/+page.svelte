@@ -29,4 +29,24 @@
       {/snippet}
     </Grid>
   </div>
+
+  <details class="source">
+    <summary>View source</summary>
+    <pre><code>{`<script lang="ts">
+  import Grid from 'svelte-grid';
+  import { gridHelp } from 'svelte-grid/helper';
+
+  let items = $state([...]);
+<\/script>
+
+<!--
+  fastStart={true}: hides the grid until the first layout calculation
+  completes on mount. Prevents a flash of items at position 0,0.
+-->
+<Grid bind:items cols={[[1100, 6]]} rowHeight={100} fastStart={true}>
+  {#snippet children({ dataItem })}
+    <div style="height:100%">{dataItem.id}</div>
+  {/snippet}
+</Grid>`}</code></pre>
+  </details>
 </div>

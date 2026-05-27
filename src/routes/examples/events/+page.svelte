@@ -54,6 +54,35 @@
       {/each}
     </ul>
   {/if}
+
+  <details class="source">
+    <summary>View source</summary>
+    <pre><code>{`<script lang="ts">
+  import Grid from 'svelte-grid';
+  import { gridHelp } from 'svelte-grid/helper';
+
+  let items = $state([
+    // draggable: false — item cannot be dragged
+    { id: '1', 6: gridHelp.item({ x: 0, y: 0, w: 2, h: 2, draggable: false }) },
+    // resizable: false — item cannot be resized
+    { id: '2', 6: gridHelp.item({ x: 2, y: 0, w: 2, h: 2, resizable: false }) },
+  ]);
+<\/script>
+
+<Grid
+  bind:items cols={[[1100, 6]]} rowHeight={100}
+  onmount={({ cols, xPerPx, yPerPx }) => console.log('mounted', cols)}
+  onresize={({ cols, xPerPx, yPerPx, width }) => console.log('resized', width)}
+  onchange={({ unsafeItem, id, cols }) => console.log('changed', id)}
+  onpointerup={({ id, cols }) => console.log('pointer up', id)}
+  ondragstart={({ id, cols }) => console.log('drag start', id)}
+  onresizestart={({ id, cols }) => console.log('resize start', id)}
+>
+  {#snippet children({ item })}
+    <div style="height:100%">{item.draggable === false ? 'No drag' : 'Box'}</div>
+  {/snippet}
+</Grid>`}</code></pre>
+  </details>
 </div>
 
 <style>

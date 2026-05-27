@@ -27,4 +27,28 @@
       {/snippet}
     </Grid>
   </div>
+
+  <details class="source">
+    <summary>View source</summary>
+    <pre><code>{`<script lang="ts">
+  import Grid from 'svelte-grid';
+  import { gridHelp } from 'svelte-grid/helper';
+  import type { GridItem, ColsDefinition } from 'svelte-grid';
+
+  const cols: ColsDefinition = [[1100, 6]];
+
+  let items = $state<GridItem[]>([
+    { id: '1', 6: gridHelp.item({ x: 0, y: 0, w: 2, h: 2 }) },
+    { id: '2', 6: gridHelp.item({ x: 2, y: 0, w: 2, h: 2 }) },
+  ]);
+<\/script>
+
+<Grid bind:items {cols} rowHeight={100}>
+  {#snippet children({ dataItem })}
+    <div style="height:100%; display:flex; align-items:center; justify-content:center;">
+      {dataItem.id}
+    </div>
+  {/snippet}
+</Grid>`}</code></pre>
+  </details>
 </div>

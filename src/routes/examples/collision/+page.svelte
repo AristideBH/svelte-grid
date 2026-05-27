@@ -11,7 +11,7 @@
 
   let collision = $state<CollisionBehavior>('push');
 
-  function makeItems(): GridItem[] {
+  function makeItems(_mode: CollisionBehavior): GridItem[] {
     return [
       { id: '1', data: 'A', 6: gridHelp.item({ x: 0, y: 0, w: 2, h: 2 }), 3: gridHelp.item({ x: 0, y: 0, w: 3, h: 2 }) },
       { id: '2', data: 'B', 6: gridHelp.item({ x: 2, y: 0, w: 2, h: 2 }), 3: gridHelp.item({ x: 0, y: 2, w: 3, h: 2 }) },
@@ -21,12 +21,12 @@
     ];
   }
 
-  let items = $state<GridItem[]>(makeItems());
+  let items = $state<GridItem[]>(makeItems('push'));
 
-  // Reset layout when switching modes so the demo is always clean
+  // Reset layout when switching modes so the demo starts with a clean slate.
+  // Passing `collision` as argument makes it a reactive dependency of the $effect.
   $effect(() => {
-    collision; // track
-    items = makeItems();
+    items = makeItems(collision);
   });
 
   const descriptions: Record<CollisionBehavior, string> = {

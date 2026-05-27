@@ -35,6 +35,33 @@
       {/snippet}
     </Grid>
   </div>
+
+  <details class="source">
+    <summary>View source</summary>
+    <pre><code>{`<script lang="ts">
+  import Grid from 'svelte-grid';
+  import { gridHelp } from 'svelte-grid/helper';
+
+  let items = $state([
+    // customDragger: true — disables the default full-item drag target
+    { id: '1', 6: gridHelp.item({ x: 0, y: 0, w: 2, h: 2, customDragger: true }) },
+    { id: '2', 6: gridHelp.item({ x: 2, y: 0, w: 2, h: 2 }) },
+  ]);
+<\/script>
+
+<Grid bind:items cols={[[1100, 6]]} rowHeight={100}>
+  {#snippet children({ item, movePointerDown })}
+    <div style="height:100%; position:relative;">
+      {#if item.customDragger}
+        <!-- Wire movePointerDown to your custom handle -->
+        <div onpointerdown={movePointerDown} style="cursor:grab; padding:4px 8px; background:#333; color:#fff;">
+          ⠿ Drag
+        </div>
+      {/if}
+    </div>
+  {/snippet}
+</Grid>`}</code></pre>
+  </details>
 </div>
 
 <style>

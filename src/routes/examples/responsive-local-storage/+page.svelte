@@ -73,6 +73,45 @@
       {/snippet}
     </Grid>
   </div>
+
+  <details class="source">
+    <summary>View source</summary>
+    <pre><code>{`<script lang="ts">
+  import { browser } from '$app/environment';
+  import Grid from 'svelte-grid';
+  import { gridHelp } from 'svelte-grid/helper';
+  import type { GridItem, ColsDefinition } from 'svelte-grid';
+
+  const KEY = 'my-responsive-layout';
+  // Each item must define a layout for every column count
+  const cols: ColsDefinition = [[1100, 4], [700, 1]];
+
+  const original: GridItem[] = [
+    { id: '1', 4: gridHelp.item({ x: 0, y: 0, w: 2, h: 2 }), 1: gridHelp.item({ x: 0, y: 0, w: 1, h: 2 }) },
+    { id: '2', 4: gridHelp.item({ x: 2, y: 0, w: 1, h: 2 }), 1: gridHelp.item({ x: 0, y: 2, w: 1, h: 2 }) },
+  ];
+
+  let items = $state<GridItem[]>(
+    browser ? (JSON.parse(localStorage.getItem(KEY) ?? 'null') ?? original) : original
+  );
+  let currentCols = $state(0);
+
+  function save() {
+    if (browser) localStorage.setItem(KEY, JSON.stringify(items));
+  }
+<\/script>
+
+<Grid
+  bind:items {cols} rowHeight={100}
+  onmount={({ cols: c }) => currentCols = c}
+  onresize={({ cols: c }) => currentCols = c}
+  onpointerup={save}
+>
+  {#snippet children({ index })}
+    <div style="height:100%">{index}</div>
+  {/snippet}
+</Grid>`}</code></pre>
+  </details>
 </div>
 
 <style>

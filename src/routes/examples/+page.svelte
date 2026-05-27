@@ -28,9 +28,6 @@
     <a href="/examples/external-drag">External drag</a>
     <a href="/examples/compact">Compact (vertical)</a>
     <a href="/examples/keyboard">Keyboard accessibility</a>
-  </nav>
-  <h2 style="margin-top:1.2em; font-size:1em; color:#666;">Extended API</h2>
-  <nav class="examples-nav">
     <a href="/examples/readonly">Read-Only</a>
     <a href="/examples/rows-bounds">Rows &amp; Bounds</a>
     <a href="/examples/controller">Grid Controller</a>

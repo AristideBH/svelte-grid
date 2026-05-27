@@ -50,6 +50,32 @@
       {/snippet}
     </Grid>
   </div>
+
+  <details class="source">
+    <summary>View source</summary>
+    <pre><code>{`<script lang="ts">
+  import Grid from 'svelte-grid';
+  import { gridHelp } from 'svelte-grid/helper';
+
+  let fillSpace = $state(true);
+  let items = $state([...20 items with random sizes...]);
+<\/script>
+
+<label>
+  <input type="checkbox" bind:checked={fillSpace} />
+  fillSpace
+</label>
+
+<!--
+  fillSpace={true}: while dragging, each item searches for its own
+  nearest free position around the active item (as opposed to pushing).
+-->
+<Grid bind:items cols={[[1200, 16]]} rowHeight={60} {fillSpace}>
+  {#snippet children({ dataItem })}
+    <div style="height:100%">{dataItem.data}</div>
+  {/snippet}
+</Grid>`}</code></pre>
+  </details>
 </div>
 
 <style>

@@ -72,4 +72,35 @@
     color: #555;
     font-size: 0.95em;
   }
+
+  /* ── Collapsible source block ── */
+  :global(details.source) {
+    margin-top: 1.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  :global(details.source summary) {
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #555;
+    background: #fafafa;
+    user-select: none;
+  }
+  :global(details.source summary:hover) {
+    background: #f0f0f0;
+  }
+  :global(details.source pre) {
+    margin: 0;
+    padding: 1rem;
+    overflow-x: auto;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+  :global(details.source pre code) {
+    font-family: 'Cascadia Code', 'Fira Mono', monospace;
+  }
 </style>

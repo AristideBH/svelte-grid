@@ -36,4 +36,31 @@
       {/snippet}
     </Grid>
   </div>
+
+  <details class="source">
+    <summary>View source</summary>
+    <pre><code>{`<script lang="ts">
+  import Grid from 'svelte-grid';
+  import { gridHelp } from 'svelte-grid/helper';
+  import type { GridItem } from 'svelte-grid';
+
+  const COL = 10;
+  let items = $state<GridItem[]>([
+    {
+      id: '1',
+      [COL]: gridHelp.item({
+        x: 0, y: 0, w: 2, h: 2,
+        min: { w: 1, h: 1 },  // minimum size
+        max: { w: 2, h: 2 },  // maximum size
+      }),
+    },
+  ]);
+<\/script>
+
+<Grid bind:items cols={[[1100, COL]]} rowHeight={100}>
+  {#snippet children({ item })}
+    <div style="height:100%">max: {item.max?.w}×{item.max?.h}</div>
+  {/snippet}
+</Grid>`}</code></pre>
+  </details>
 </div>

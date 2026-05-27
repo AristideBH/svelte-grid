@@ -51,6 +51,38 @@
       {/snippet}
     </Grid>
   </div>
+
+  <details class="source">
+    <summary>View source</summary>
+    <pre><code>{`<script lang="ts">
+  import { browser } from '$app/environment';
+  import Grid from 'svelte-grid';
+  import { gridHelp } from 'svelte-grid/helper';
+  import type { GridItem } from 'svelte-grid';
+
+  const KEY = 'my-grid-layout';
+  const original: GridItem[] = [...];
+
+  function load(): GridItem[] {
+    if (!browser) return original;
+    const saved = localStorage.getItem(KEY);
+    return saved ? JSON.parse(saved) : original;
+  }
+
+  let items = $state<GridItem[]>(load());
+
+  function save() {
+    if (browser) localStorage.setItem(KEY, JSON.stringify(items));
+  }
+<\/script>
+
+<!-- Save layout on every pointer-up (drag/resize end) -->
+<Grid bind:items cols={[[1100, 6]]} rowHeight={100} onpointerup={save}>
+  {#snippet children({ index })}
+    <div style="height:100%">{index}</div>
+  {/snippet}
+</Grid>`}</code></pre>
+  </details>
 </div>
 
 <style>

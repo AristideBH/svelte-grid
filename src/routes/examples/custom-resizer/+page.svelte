@@ -35,6 +35,36 @@
       {/snippet}
     </Grid>
   </div>
+
+  <details class="source">
+    <summary>View source</summary>
+    <pre><code>{`<script lang="ts">
+  import Grid from 'svelte-grid';
+  import { gridHelp } from 'svelte-grid/helper';
+
+  let items = $state([
+    // customResizer: true — hides the built-in resize handle
+    { id: '1', 6: gridHelp.item({ x: 0, y: 0, w: 2, h: 2, customResizer: true }) },
+    { id: '2', 6: gridHelp.item({ x: 2, y: 0, w: 2, h: 2 }) },
+  ]);
+<\/script>
+
+<Grid bind:items cols={[[1100, 6]]} rowHeight={100}>
+  {#snippet children({ item, resizePointerDown })}
+    <div style="height:100%; position:relative;">
+      {#if item.customResizer}
+        <!-- Wire resizePointerDown to your custom resize handle -->
+        <div
+          onpointerdown={resizePointerDown}
+          style="position:absolute; bottom:4px; right:4px; cursor:se-resize; font-size:0.75em;"
+        >
+          ↘ Resize
+        </div>
+      {/if}
+    </div>
+  {/snippet}
+</Grid>`}</code></pre>
+  </details>
 </div>
 
 <style>

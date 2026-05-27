@@ -37,6 +37,28 @@
       {/snippet}
     </Grid>
   </div>
+
+  <details class="source">
+    <summary>View source</summary>
+    <pre><code>{`<script lang="ts">
+  import Grid from 'svelte-grid';
+  import { gridHelp } from 'svelte-grid/helper';
+
+  let gapX = $state(20);
+  let gapY = $state(20);
+  let items = $state([...]);
+<\/script>
+
+<input type="number" bind:value={gapX} />
+<input type="number" bind:value={gapY} />
+
+<!-- gap: [gapX, gapY] in pixels -->
+<Grid bind:items {cols} rowHeight={100} gap={[gapX, gapY]}>
+  {#snippet children()}
+    <div style="height:100%"></div>
+  {/snippet}
+</Grid>`}</code></pre>
+  </details>
 </div>
 
 <style>

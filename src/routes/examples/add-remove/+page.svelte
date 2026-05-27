@@ -74,6 +74,38 @@
       {/snippet}
     </Grid>
   </div>
+
+  <details class="source">
+    <summary>View source</summary>
+    <pre><code>{`<script lang="ts">
+  import Grid from 'svelte-grid';
+  import { gridHelp } from 'svelte-grid/helper';
+  import type { GridItem } from 'svelte-grid';
+
+  const COLS = 6;
+  let items = $state<GridItem[]>([...]);
+
+  function add() {
+    const newItem: GridItem = { id: crypto.randomUUID(), [COLS]: gridHelp.item({ x: 0, y: 0, w: 2, h: 2 }) };
+    const pos = gridHelp.findSpace(newItem, items, COLS);
+    items = [...items, { ...newItem, [COLS]: { ...newItem[COLS]!, ...pos } }];
+  }
+
+  function remove(id: string) {
+    items = items.filter((v) => v.id !== id);
+    items = gridHelp.adjust(items, COLS); // compact after removal
+  }
+<\/script>
+
+<button onclick={add}>Add</button>
+<Grid bind:items cols={[[1100, COLS]]} rowHeight={100}>
+  {#snippet children({ dataItem, movePointerDown })}
+    <div onpointerdown={movePointerDown} style="height:100%">
+      <button onpointerdown={(e) => e.stopPropagation()} onclick={() => remove(dataItem.id)}>✕</button>
+    </div>
+  {/snippet}
+</Grid>`}</code></pre>
+  </details>
 </div>
 
 <style>
