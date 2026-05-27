@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import type { Snippet } from "svelte";
   import type { GridItem, BreakpointItem, ColsDefinition, Gap, ExternalDropEvent } from "./types.js";
+  import { GridController } from "./GridController.svelte.js";
   import { getContainerHeight } from "./utils/container.js";
   import { moveItemsAroundItem, moveItem, getItemById, specifyUndefinedColumns, compactY } from "./utils/item.js";
   import { getColumn } from "./utils/other.js";
@@ -34,6 +35,16 @@
     scroller?: HTMLElement;
     sensor?: number;
     compact?: boolean;
+    /** Disable all drag and resize interactions globally. */
+    readOnly?: boolean;
+    /** Minimum number of rows to show (also used with `bounds` to cap item movement). */
+    rows?: number;
+    /** Prevent items from being dragged or resized beyond the `rows` boundary. */
+    bounds?: boolean;
+    /** Expose a programmatic controller. Use with `bind:controller`. */
+    controller?: GridController;
+    /** Automatically compact items upward whenever `items` changes externally. */
+    autoCompress?: boolean;
     children: Snippet<[SnippetArgs]>;
     onmount?: (event: MountEvent) => void;
     onresize?: (event: ResizeEvent) => void;
@@ -56,6 +67,11 @@
     scroller = undefined,
     sensor = 20,
     compact = false,
+    readOnly = false,
+    rows = 0,
+    bounds = false,
+    controller = $bindable<GridController | undefined>(undefined),
+    autoCompress = false,
     children: renderItem,
     onmount,
     onresize,
@@ -79,7 +95,29 @@
   const gapX = $derived(gap[0]);
   const gapY = $derived(gap[1]);
   const yPerPx = $derived(rowHeight);
-  const containerHeight = $derived(getContainerHeight(items, yPerPx, getComputedCols));
+  const containerHeight = $derived(getContainerHeight(items, yPerPx, getComputedCols, rows));
+
+  // --- GridController wiring ---
+  $effect(() => {
+    controller = new GridController(
+      () => items,
+      (newItems) => { items = newItems; },
+      () => getComputedCols,
+    );
+  });
+
+  // --- autoCompress: compact items whenever they change externally ---
+  // Guard against infinite loops: skip when the change came from us.
+  let _internalItems = $state<GridItem[] | null>(null);
+  $effect(() => {
+    if (!autoCompress) return;
+    const current = items;
+    if (current === _internalItems) return;
+    if (!getComputedCols) return;
+    const compressed = compactY(current, getComputedCols);
+    _internalItems = compressed;
+    items = compressed;
+  });
 
   // --- Event handlers ---
   const handlePointerUp = ({ id }: { id: string }) => {
@@ -229,8 +267,11 @@
         ondragstart={handleDragStart}
         onresizestart={handleResizeStart}
         id={item.id}
-        resizable={bp?.resizable}
-        draggable={bp?.draggable}
+        resizable={readOnly ? false : bp?.resizable}
+        draggable={readOnly ? false : bp?.draggable}
+        {readOnly}
+        {rows}
+        {bounds}
         {xPerPx}
         yPerPx={yPerPx}
         width={Math.min(getComputedCols, bp?.w ?? 0) * xPerPx - gapX * 2}

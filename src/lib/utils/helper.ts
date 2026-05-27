@@ -1,9 +1,13 @@
-import type { GridItem, BreakpointItem } from "../types.js";
+import type { GridItem, BreakpointItem, PixelRect, GridRect } from "../types.js";
 import { makeMatrixFromItems } from "./matrix.js";
 import { findFreeSpaceForItem, normalize, adjust, compactY } from "./item.js";
 import { getRowsCount } from "./other.js";
+import { gridToPixel, pixelToGrid } from "./coords.js";
 
 type ItemInput = Partial<BreakpointItem> & { x: number; y: number; w: number; h: number };
+
+// Re-export for convenience so consumers can access via gridHelp
+export type { PixelRect, GridRect };
 
 function makeItem(item: ItemInput): BreakpointItem {
   const { min = { w: 1, h: 1 }, max, fixed = false } = item;
@@ -56,6 +60,18 @@ export const gridHelp = {
     if (!bp) return { x: 0, y: 0 };
     return findFreeSpaceForItem(matrix, bp);
   },
+
+  /**
+   * Convert a grid item position/size to absolute pixel values within the container.
+   * Useful for rendering overlays, tooltips, or custom decorations aligned to grid items.
+   */
+  gridToPixel,
+
+  /**
+   * Convert pixel coordinates (relative to the grid container) to grid units.
+   * Useful for custom drop targets, hit-testing, etc.
+   */
+  pixelToGrid,
 };
 
 export default gridHelp;

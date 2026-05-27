@@ -96,6 +96,12 @@ npm i svelte-grid
 | `throttleResize` | `number` | `100` | Throttle (ms) for matrix recalc during drag/resize |
 | `sensor` | `number` | `20` | Autoscroll proximity sensor in pixels |
 | `scroller` | `HTMLElement` | `document.documentElement` | Custom scroll container element |
+| `readOnly` | `boolean` | `false` | Globally disable all drag and resize interactions |
+| `rows` | `number` | `0` | Minimum number of visible rows (also the boundary for `bounds`) |
+| `bounds` | `boolean` | `false` | Prevent items from being moved or resized past the `rows` limit |
+| `controller` | `GridController` | — | Programmatic controller. Use `bind:controller` to access it |
+| `autoCompress` | `boolean` | `false` | Automatically compact items upward on every external `items` change |
+| `compact` | `boolean` | `false` | Compact items upward after every drag/resize |
 
 ---
 
@@ -107,6 +113,9 @@ npm i svelte-grid
 | `onresize` | `{ cols, xPerPx, yPerPx, width }` | Fired when the container changes width |
 | `onchange` | `{ unsafeItem, id, cols }` | Fired continuously while dragging or resizing |
 | `onpointerup` | `{ id, cols }` | Fired when a drag or resize ends |
+| `ondragstart` | `{ id, cols }` | Fired when a drag begins |
+| `onresizestart` | `{ id, cols }` | Fired when a resize begins |
+| `onexternaldrop` | `{ x, y, w, h, cols, data }` | Fired when an external draggable is dropped onto the grid |
 
 ---
 
@@ -163,7 +172,35 @@ import { gridHelp } from 'svelte-grid/helper';
 | `gridHelp.item(obj)` | Create a `BreakpointItem` with defaults filled in |
 | `gridHelp.normalize(items, col)` | Remove overlapping items at a given column count |
 | `gridHelp.adjust(items, col)` | Pack items tightly (fill empty spaces) |
+| `gridHelp.compact(items, col)` | Compact items upward (alias for `compactY`) |
 | `gridHelp.findSpace(item, items, cols)` | Find the first free `{x, y}` position for an item |
+| `gridHelp.gridToPixel(item, xPerPx, yPerPx, gapX, gapY)` | Convert grid coords to pixel rect |
+| `gridHelp.pixelToGrid(px, xPerPx, yPerPx, gapX, gapY)` | Convert pixel rect to grid coords |
+
+---
+
+## GridController
+
+`GridController` provides a programmatic API for reading and mutating the grid without touching `items` directly. Obtain an instance with `bind:controller`:
+
+```svelte
+<script lang="ts">
+  import Grid, { GridController } from 'svelte-grid';
+
+  let controller = $state<GridController | undefined>(undefined);
+</script>
+
+<Grid bind:items {cols} {rowHeight} bind:controller>...</Grid>
+
+<button onclick={() => controller?.addItem({ w: 2, h: 2, data: 'New' })}>Add</button>
+<button onclick={() => controller?.compress()}>Compress</button>
+```
+
+| Method | Returns | Description |
+|---|---|---|
+| `addItem(input)` | `void` | Add a new item; auto-places it if `x`/`y` are omitted |
+| `compress()` | `void` | Compact all items upward, removing gaps |
+| `getFirstAvailablePosition(w, h)` | `{x, y} \| null` | Find the first free grid cell that fits `w×h` |
 
 ---
 
@@ -241,7 +278,11 @@ Use `:global(...)` to style internal elements:
 All types are exported from the main entry point:
 
 ```ts
-import type { GridItem, BreakpointItem, ColsDefinition, Gap, SnippetArgs } from 'svelte-grid';
+import type {
+  GridItem, BreakpointItem, ColsDefinition, Gap, SnippetArgs,
+  ResizeDir, ExternalDropEvent,
+  GridControllerInterface, NewItemInput, PixelRect, GridRect,
+} from 'svelte-grid';
 ```
 
 ---

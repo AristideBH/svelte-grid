@@ -37,3 +37,36 @@ export interface ExternalDropEvent {
   cols: number;
   data: unknown;
 }
+
+/** Programmatic controller interface exposed via bind:controller. */
+export interface GridControllerInterface {
+  getFirstAvailablePosition(w: number, h: number): { x: number; y: number } | null;
+  compress(): void;
+  addItem(input: NewItemInput): void;
+}
+
+/** Input for GridController.addItem(). */
+export interface NewItemInput {
+  id?: string;
+  data?: unknown;
+  w: number;
+  h: number;
+  x?: number;
+  y?: number;
+}
+
+/** A rectangle in pixel space. */
+export interface PixelRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** A rectangle in grid units. */
+export interface GridRect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}

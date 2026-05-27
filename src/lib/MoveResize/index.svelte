@@ -17,6 +17,9 @@
     top: number;
     resizable: boolean | undefined;
     draggable: boolean | undefined;
+    readOnly: boolean;
+    rows: number;
+    bounds: boolean;
     id: string;
     container: HTMLElement | undefined;
     xPerPx: number;
@@ -43,6 +46,9 @@
     top,
     resizable,
     draggable,
+    readOnly,
+    rows,
+    bounds,
     id,
     container,
     xPerPx,
@@ -154,6 +160,11 @@
     shadow.y = Math.max(Math.round(boundY / yPerPx), 0);
     if (max?.y) shadow.y = Math.min(shadow.y, max.y);
 
+    // Clamp to row boundary when bounds is enabled
+    if (bounds && rows > 0 && shadow.h !== undefined) {
+      shadow.y = Math.min(shadow.y, Math.max(0, rows - shadow.h));
+    }
+
     repaint();
   };
 
@@ -194,6 +205,7 @@
   };
 
   const pointerdown = ({ clientX, clientY, target }: PointerEvent) => {
+    if (readOnly) return;
     initX = clientX;
     initY = clientY;
 
@@ -251,6 +263,15 @@
     if (isW) shadow.x = Math.max(0, rightEdgeCols - shadow.w);
     if (isN) shadow.y = Math.max(0, bottomEdgeCols - shadow.h);
 
+    // Clamp to row boundary when bounds is enabled
+    if (bounds && rows > 0) {
+      const maxH = rows - (shadow.y ?? 0);
+      if ((shadow.h ?? 1) > maxH) {
+        shadow.h = Math.max(min?.h ?? 1, maxH);
+        newSize.height = shadow.h * yPerPx - gapY * 2;
+      }
+    }
+
     repaint();
   };
 
@@ -262,6 +283,7 @@
   };
 
   const resizePointerDown = (e: PointerEvent, dir: ResizeDir = "se") => {
+    if (readOnly) return;
     e.stopPropagation();
 
     currentResizeDir = dir;
@@ -289,7 +311,7 @@
 
   // --- Keyboard ---
   const keydown = (e: KeyboardEvent) => {
-    if (!item) return;
+    if (readOnly || !item) return;
     const arrows = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
     if (!arrows.includes(e.key)) return;
     e.preventDefault();
