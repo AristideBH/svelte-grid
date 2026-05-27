@@ -112,6 +112,10 @@
   // the original array and its proxied form always fail — use a flip-flop flag instead.
   let _autoCompressLock = false;
   $effect(() => {
+    // Read items unconditionally so it stays in the dependency set even on
+    // the "skip" run — otherwise Svelte drops the dependency and future
+    // external changes to items never re-trigger the effect.
+    const current = items;
     if (!autoCompress || !getComputedCols) return;
     if (_autoCompressLock) {
       // This run was triggered by our own write below — skip and reset.
@@ -119,7 +123,7 @@
       return;
     }
     _autoCompressLock = true;
-    items = compactY(items, getComputedCols);
+    items = compactY(current, getComputedCols);
   });
 
   // --- Event handlers ---
