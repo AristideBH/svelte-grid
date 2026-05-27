@@ -1,44 +1,19 @@
 <script lang="ts">
-  import { Grid, gridHelp } from "$lib";
-  import type { GridItem, ColsDefinition } from "$lib";
+  import Grid from '$lib/index.svelte';
+  import { gridHelp } from '$lib/utils/helper';
+  import type { GridItem, ColsDefinition } from '$lib';
+  import DemoShell from '../DemoShell.svelte';
 
-  const id = () => "_" + Math.random().toString(36).substr(2, 9);
+  const id = () => '_' + Math.random().toString(36).substr(2, 9);
   const cols: ColsDefinition = [[1100, 6]];
 
   let items = $state<GridItem[]>([
     { id: id(), 6: gridHelp.item({ x: 0, y: 0, w: 2, h: 2, customResizer: true }) },
     { id: id(), 6: gridHelp.item({ x: 2, y: 0, w: 2, h: 2 }) },
   ]);
-</script>
 
-<svelte:head>
-  <title>Example — Custom resizer</title>
-</svelte:head>
-
-<div class="example-page">
-  <h2>Custom resizer</h2>
-  <p>
-    Set <code>customResizer: true</code> to hide the built-in resize handle.
-    Wire <code>resizePointerDown</code> to your own element.
-  </p>
-
-  <div class="demo-container">
-    <Grid bind:items {cols} rowHeight={100}>
-      {#snippet children({ item, dataItem, resizePointerDown })}
-        <div class="demo-widget">
-          {dataItem.id}
-          {#if item.customResizer}
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <div class="resizer" onpointerdown={resizePointerDown}>↘ Resize</div>
-          {/if}
-        </div>
-      {/snippet}
-    </Grid>
-  </div>
-
-  <details class="source">
-    <summary>View source</summary>
-    <pre><code>{`<script lang="ts">
+  const source = `\
+<script lang="ts">
   import Grid from 'svelte-grid';
   import { gridHelp } from 'svelte-grid/helper';
 
@@ -63,9 +38,29 @@
       {/if}
     </div>
   {/snippet}
-</Grid>`}</code></pre>
-  </details>
-</div>
+</Grid>`;
+</script>
+
+<DemoShell title="Custom resizer" {source}>
+  {#snippet description()}
+    <p>
+      Set <code>customResizer: true</code> to hide the built-in resize handle.
+      Wire <code>resizePointerDown</code> to your own element.
+    </p>
+  {/snippet}
+
+  <Grid bind:items {cols} rowHeight={100}>
+    {#snippet children({ item, dataItem, resizePointerDown })}
+      <div class="demo-widget">
+        {dataItem.id}
+        {#if item.customResizer}
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div class="resizer" onpointerdown={resizePointerDown}>↘ Resize</div>
+        {/if}
+      </div>
+    {/snippet}
+  </Grid>
+</DemoShell>
 
 <style>
   :global(.demo-widget .resizer) {

@@ -128,8 +128,9 @@
     const xdragBound = rect.left + cordDiff.x + resizeOffset.x;
     const ydragBound = rect.top + cordDiff.y + resizeOffset.y;
 
-    cordDiff.x = (shadow.x ?? 0) * xPerPx + gapX - (shadowBound.x - xdragBound);
-    cordDiff.y = (shadow.y ?? 0) * yPerPx + gapY - (shadowBound.y - ydragBound);
+    const _sx = shadow.x ?? 0, _sy = shadow.y ?? 0;
+    cordDiff.x = _sx * xPerPx + (_sx > 0 ? gapX / 2 : 0) - (shadowBound.x - xdragBound);
+    cordDiff.y = _sy * yPerPx + (_sy > 0 ? gapY / 2 : 0) - (shadowBound.y - ydragBound);
 
     active = false;
     trans = true;
@@ -247,19 +248,21 @@
     const maxWCols = isW ? rightEdgeCols : cols - (item?.x ?? 0);
     const maxW = max?.w ? Math.min(max.w, maxWCols) : maxWCols;
     const minW = min?.w ?? 1;
-    newSize.width = Math.max(Math.min(rawW, maxW * xPerPx - gapX * 2), minW * xPerPx - gapX * 2);
+    // Gap budget for width: half on each side (gapX total). Use gapX as the symmetric budget
+    // so resize snaps match rendered item widths (which use gapX/2 per side).
+    newSize.width = Math.max(Math.min(rawW, maxW * xPerPx - gapX), minW * xPerPx - gapX);
 
     const bottomEdgeCols = (item?.y ?? 0) + (item?.h ?? 1);
     const minH = min?.h ?? 1;
-    newSize.height = Math.max(rawH, minH * yPerPx - gapY * 2);
-    if (isN) newSize.height = Math.min(newSize.height, bottomEdgeCols * yPerPx - gapY * 2);
-    if (max?.h) newSize.height = Math.min(newSize.height, max.h * yPerPx - gapY * 2);
+    newSize.height = Math.max(rawH, minH * yPerPx - gapY);
+    if (isN) newSize.height = Math.min(newSize.height, bottomEdgeCols * yPerPx - gapY);
+    if (max?.h) newSize.height = Math.min(newSize.height, max.h * yPerPx - gapY);
 
     resizeOffset.x = isW ? initSize.width - newSize.width : 0;
     resizeOffset.y = isN ? initSize.height - newSize.height : 0;
 
-    shadow.w = Math.round((newSize.width + gapX * 2) / xPerPx);
-    shadow.h = Math.round((newSize.height + gapY * 2) / yPerPx);
+    shadow.w = Math.round((newSize.width + gapX) / xPerPx);
+    shadow.h = Math.round((newSize.height + gapY) / yPerPx);
     if (isW) shadow.x = Math.max(0, rightEdgeCols - shadow.w);
     if (isN) shadow.y = Math.max(0, bottomEdgeCols - shadow.h);
 
@@ -268,7 +271,7 @@
       const maxH = rows - (shadow.y ?? 0);
       if ((shadow.h ?? 1) > maxH) {
         shadow.h = Math.max(min?.h ?? 1, maxH);
-        newSize.height = shadow.h * yPerPx - gapY * 2;
+        newSize.height = shadow.h * yPerPx - gapY;
       }
     }
 
@@ -376,10 +379,16 @@
 </div>
 
 {#if active || trans}
+  {@const _shX = shadow.x ?? 0}
+  {@const _shY = shadow.y ?? 0}
+  {@const _shW = shadow.w ?? 0}
+  {@const _shH = shadow.h ?? 0}
+  {@const _shGL = _shX > 0 ? gapX / 2 : 0}
+  {@const _shGR = _shX + _shW < cols ? gapX / 2 : 0}
+  {@const _shGT = _shY > 0 ? gapY / 2 : 0}
   <div
     class="svlt-grid-shadow shadow-active"
-    style="width: {(shadow.w ?? 0) * xPerPx - gapX * 2}px; height: {(shadow.h ?? 0) * yPerPx -
-      gapY * 2}px; transform: translate({(shadow.x ?? 0) * xPerPx + gapX}px, {(shadow.y ?? 0) * yPerPx + gapY}px);"
+    style="width: {_shW * xPerPx - _shGL - _shGR}px; height: {_shH * yPerPx - _shGT - gapY / 2}px; transform: translate({_shX * xPerPx + _shGL}px, {_shY * yPerPx + _shGT}px);"
     bind:this={shadowElement}
   ></div>
 {/if}
@@ -422,37 +431,37 @@
   }
 
   /* Corner handles */
-  .svlt-grid-resizer--se { right:  0; bottom: 0; cursor: se-resize; width:  var(--svlt-handle-corner, 20px); height: var(--svlt-handle-corner, 20px); }
-  .svlt-grid-resizer--sw { left:   0; bottom: 0; cursor: sw-resize; width:  var(--svlt-handle-corner, 20px); height: var(--svlt-handle-corner, 20px); }
-  .svlt-grid-resizer--ne { right:  0; top:    0; cursor: ne-resize; width:  var(--svlt-handle-corner, 20px); height: var(--svlt-handle-corner, 20px); }
-  .svlt-grid-resizer--nw { left:   0; top:    0; cursor: nw-resize; width:  var(--svlt-handle-corner, 20px); height: var(--svlt-handle-corner, 20px); }
+  .svlt-grid-resizer--se { right:  0; bottom: 0; cursor: se-resize; width:  var(--svlt-handle-corner, 14px); height: var(--svlt-handle-corner, 14px); }
+  .svlt-grid-resizer--sw { left:   0; bottom: 0; cursor: sw-resize; width:  var(--svlt-handle-corner, 14px); height: var(--svlt-handle-corner, 14px); }
+  .svlt-grid-resizer--ne { right:  0; top:    0; cursor: ne-resize; width:  var(--svlt-handle-corner, 14px); height: var(--svlt-handle-corner, 14px); }
+  .svlt-grid-resizer--nw { left:   0; top:    0; cursor: nw-resize; width:  var(--svlt-handle-corner, 14px); height: var(--svlt-handle-corner, 14px); }
 
   /* Edge handles — inset past the corner handles so they don't overlap */
   .svlt-grid-resizer--n {
     height: var(--svlt-handle-edge, 8px);
-    left:   var(--svlt-handle-corner, 20px);
-    right:  var(--svlt-handle-corner, 20px);
+    left:   var(--svlt-handle-corner, 14px);
+    right:  var(--svlt-handle-corner, 14px);
     top: 0;
     cursor: n-resize;
   }
   .svlt-grid-resizer--s {
     height: var(--svlt-handle-edge, 8px);
-    left:   var(--svlt-handle-corner, 20px);
-    right:  var(--svlt-handle-corner, 20px);
+    left:   var(--svlt-handle-corner, 14px);
+    right:  var(--svlt-handle-corner, 14px);
     bottom: 0;
     cursor: s-resize;
   }
   .svlt-grid-resizer--e {
     width:  var(--svlt-handle-edge, 8px);
-    top:    var(--svlt-handle-corner, 20px);
-    bottom: var(--svlt-handle-corner, 20px);
+    top:    var(--svlt-handle-corner, 14px);
+    bottom: var(--svlt-handle-corner, 14px);
     right: 0;
     cursor: e-resize;
   }
   .svlt-grid-resizer--w {
     width:  var(--svlt-handle-edge, 8px);
-    top:    var(--svlt-handle-corner, 20px);
-    bottom: var(--svlt-handle-corner, 20px);
+    top:    var(--svlt-handle-corner, 14px);
+    bottom: var(--svlt-handle-corner, 14px);
     left: 0;
     cursor: w-resize;
   }
@@ -503,6 +512,6 @@
 
   :global(:not(.svlt-unstyled)) .svlt-grid-shadow {
     background: var(--svlt-shadow-bg, rgba(0, 0, 0, 0.15));
-    border-radius: var(--svlt-shadow-radius, 0px);
+    border-radius: var(--svlt-shadow-radius, 6px);
   }
 </style>

@@ -300,6 +300,13 @@
   {#if xPerPx || !fastStart}
     {#each items as item, i (item.id)}
       {@const bp = item[getComputedCols]}
+      {@const bpX = bp?.x ?? 0}
+      {@const bpY = bp?.y ?? 0}
+      {@const bpW = Math.min(getComputedCols, bp?.w ?? 0)}
+      {@const bpH = bp?.h ?? 0}
+      {@const bpGL = bpX > 0 ? gapX / 2 : 0}
+      {@const bpGR = bpX + bpW < getComputedCols ? gapX / 2 : 0}
+      {@const bpGT = bpY > 0 ? gapY / 2 : 0}
       <MoveResize
         onrepaint={handleRepaint}
         onpointerup={handlePointerUp}
@@ -313,10 +320,10 @@
         {bounds}
         {xPerPx}
         yPerPx={yPerPx}
-        width={Math.min(getComputedCols, bp?.w ?? 0) * xPerPx - gapX * 2}
-        height={(bp?.h ?? 0) * yPerPx - gapY * 2}
-        top={(bp?.y ?? 0) * yPerPx + gapY}
-        left={(bp?.x ?? 0) * xPerPx + gapX}
+        left={bpX * xPerPx + bpGL}
+        top={bpY * yPerPx + bpGT}
+        width={bpW * xPerPx - bpGL - bpGR}
+        height={bpH * yPerPx - bpGT - gapY / 2}
         item={bp}
         min={bp?.min}
         max={bp?.max}
@@ -336,9 +343,16 @@
     {/each}
 
     {#if extDragItem}
+      {@const edX = extDragItem.x}
+      {@const edY = extDragItem.y}
+      {@const edW = extDragItem.w}
+      {@const edH = extDragItem.h}
+      {@const edGL = edX > 0 ? gapX / 2 : 0}
+      {@const edGR = edX + edW < getComputedCols ? gapX / 2 : 0}
+      {@const edGT = edY > 0 ? gapY / 2 : 0}
       <div
         class="svlt-grid-shadow shadow-active"
-        style="width: {extDragItem.w * xPerPx - gapX * 2}px; height: {extDragItem.h * yPerPx - gapY * 2}px; transform: translate({extDragItem.x * xPerPx + gapX}px, {extDragItem.y * yPerPx + gapY}px);"
+        style="width: {edW * xPerPx - edGL - edGR}px; height: {edH * yPerPx - edGT - gapY / 2}px; transform: translate({edX * xPerPx + edGL}px, {edY * yPerPx + edGT}px);"
       ></div>
     {/if}
   {/if}

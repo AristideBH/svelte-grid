@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { Grid, gridHelp } from "$lib";
-  import type { GridItem, ColsDefinition } from "$lib";
+  import Grid from '$lib/index.svelte';
+  import { gridHelp } from '$lib/utils/helper';
+  import type { GridItem, ColsDefinition } from '$lib';
+  import DemoShell from '../DemoShell.svelte';
 
-  const id = () => "_" + Math.random().toString(36).substr(2, 9);
+  const id = () => '_' + Math.random().toString(36).substr(2, 9);
   const COL = 6;
   const cols: ColsDefinition = [[1100, COL]];
 
@@ -16,55 +18,14 @@
   function push(msg: string) {
     log = [msg, ...log].slice(0, 8);
   }
-</script>
 
-<svelte:head>
-  <title>Example — Events</title>
-</svelte:head>
-
-<div class="example-page">
-  <h2>Events</h2>
-  <p>
-    Left box has <code>draggable: false</code>, right box has <code>resizable: false</code>.
-    All four event callbacks are wired up below.
-  </p>
-
-  <div class="demo-container">
-    <Grid
-      bind:items
-      {cols}
-      rowHeight={100}
-      onmount={({ cols: c }) => push(`onmount — cols: ${c}`)}
-      onresize={({ cols: c, width }) => push(`onresize — cols: ${c}, width: ${Math.round(width)}`)}
-      onchange={({ id: i, cols: c }) => push(`onchange — id: ${i}, cols: ${c}`)}
-      onpointerup={({ id: i, cols: c }) => push(`onpointerup — id: ${i}, cols: ${c}`)}
-    >
-      {#snippet children({ item })}
-        <div class="demo-widget">
-          {item.draggable === false ? "No drag" : item.resizable === false ? "No resize" : "Box"}
-        </div>
-      {/snippet}
-    </Grid>
-  </div>
-
-  {#if log.length}
-    <ul class="event-log">
-      {#each log as entry}
-        <li>{entry}</li>
-      {/each}
-    </ul>
-  {/if}
-
-  <details class="source">
-    <summary>View source</summary>
-    <pre><code>{`<script lang="ts">
+  const source = `\
+<script lang="ts">
   import Grid from 'svelte-grid';
   import { gridHelp } from 'svelte-grid/helper';
 
   let items = $state([
-    // draggable: false — item cannot be dragged
     { id: '1', 6: gridHelp.item({ x: 0, y: 0, w: 2, h: 2, draggable: false }) },
-    // resizable: false — item cannot be resized
     { id: '2', 6: gridHelp.item({ x: 2, y: 0, w: 2, h: 2, resizable: false }) },
   ]);
 <\/script>
@@ -81,9 +42,43 @@
   {#snippet children({ item })}
     <div style="height:100%">{item.draggable === false ? 'No drag' : 'Box'}</div>
   {/snippet}
-</Grid>`}</code></pre>
-  </details>
-</div>
+</Grid>`;
+</script>
+
+<DemoShell title="Events" {source}>
+  {#snippet description()}
+    <p>
+      Left box has <code>draggable: false</code>, right box has <code>resizable: false</code>.
+      All six event callbacks are wired up below.
+    </p>
+  {/snippet}
+
+  <Grid
+    bind:items
+    {cols}
+    rowHeight={100}
+    onmount={({ cols: c }) => push(`onmount — cols: ${c}`)}
+    onresize={({ cols: c, width }) => push(`onresize — cols: ${c}, width: ${Math.round(width)}`)}
+    onchange={({ id: i, cols: c }) => push(`onchange — id: ${i}, cols: ${c}`)}
+    onpointerup={({ id: i, cols: c }) => push(`onpointerup — id: ${i}, cols: ${c}`)}
+    ondragstart={({ id: i }) => push(`ondragstart — id: ${i}`)}
+    onresizestart={({ id: i }) => push(`onresizestart — id: ${i}`)}
+  >
+    {#snippet children({ item })}
+      <div class="demo-widget">
+        {item.draggable === false ? 'No drag' : item.resizable === false ? 'No resize' : 'Box'}
+      </div>
+    {/snippet}
+  </Grid>
+
+  {#if log.length}
+    <ul class="event-log">
+      {#each log as entry}
+        <li>{entry}</li>
+      {/each}
+    </ul>
+  {/if}
+</DemoShell>
 
 <style>
   .event-log {
@@ -96,13 +91,6 @@
     list-style: none;
   }
 
-  .event-log li {
-    padding: 2px 0;
-    color: #444;
-  }
-
-  .event-log li:first-child {
-    color: #1a1a1a;
-    font-weight: 600;
-  }
+  .event-log li { padding: 2px 0; color: #444; }
+  .event-log li:first-child { color: #1a1a1a; font-weight: 600; }
 </style>

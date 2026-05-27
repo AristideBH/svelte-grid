@@ -1,24 +1,17 @@
 <script lang="ts">
-  import { browser } from "$app/environment";
-  import { Grid, gridHelp } from "$lib";
-  import type { GridItem, ColsDefinition } from "$lib";
+  import { browser } from '$app/environment';
+  import Grid from '$lib/index.svelte';
+  import { gridHelp } from '$lib/utils/helper';
+  import type { GridItem, ColsDefinition } from '$lib';
+  import DemoShell from '../DemoShell.svelte';
 
-  const id = () => "_" + Math.random().toString(36).substr(2, 9);
-  const KEY = "svelte-grid-example-responsive-layout";
-
+  const id = () => '_' + Math.random().toString(36).substr(2, 9);
+  const KEY = 'svelte-grid-example-responsive-layout';
   const cols: ColsDefinition = [[1100, 4], [700, 1]];
 
   const original: GridItem[] = [
-    {
-      id: id(),
-      4: gridHelp.item({ x: 0, y: 0, w: 2, h: 2 }),
-      1: gridHelp.item({ x: 0, y: 0, w: 1, h: 2 }),
-    },
-    {
-      id: id(),
-      4: gridHelp.item({ x: 2, y: 0, w: 1, h: 2 }),
-      1: gridHelp.item({ x: 0, y: 2, w: 1, h: 2 }),
-    },
+    { id: id(), 4: gridHelp.item({ x: 0, y: 0, w: 2, h: 2 }), 1: gridHelp.item({ x: 0, y: 0, w: 1, h: 2 }) },
+    { id: id(), 4: gridHelp.item({ x: 2, y: 0, w: 1, h: 2 }), 1: gridHelp.item({ x: 0, y: 2, w: 1, h: 2 }) },
   ];
 
   function load(): GridItem[] {
@@ -41,42 +34,9 @@
     }));
     if (browser) localStorage.setItem(KEY, JSON.stringify(items));
   }
-</script>
 
-<svelte:head>
-  <title>Example — Responsive + localStorage</title>
-</svelte:head>
-
-<div class="example-page">
-  <h2>Responsive + Serialize / Restore</h2>
-  <p>
-    Layout per breakpoint is saved to <code>localStorage</code>. Resize the window to switch
-    breakpoints, then reload to confirm restoration.
-  </p>
-
-  <div class="controls">
-    <button onclick={reset}>Reset layout</button>
-    <span class="cols-info">Current cols: {currentCols}</span>
-  </div>
-
-  <div class="demo-container">
-    <Grid
-      bind:items
-      {cols}
-      rowHeight={100}
-      onmount={({ cols: c }) => (currentCols = c)}
-      onresize={({ cols: c }) => (currentCols = c)}
-      onpointerup={save}
-    >
-      {#snippet children({ index })}
-        <div class="demo-widget">{index}</div>
-      {/snippet}
-    </Grid>
-  </div>
-
-  <details class="source">
-    <summary>View source</summary>
-    <pre><code>{`<script lang="ts">
+  const source = `\
+<script lang="ts">
   import { browser } from '$app/environment';
   import Grid from 'svelte-grid';
   import { gridHelp } from 'svelte-grid/helper';
@@ -110,9 +70,34 @@
   {#snippet children({ index })}
     <div style="height:100%">{index}</div>
   {/snippet}
-</Grid>`}</code></pre>
-  </details>
-</div>
+</Grid>`;
+</script>
+
+<DemoShell title="Responsive + Serialize / Restore" {source}>
+  {#snippet description()}
+    <p>
+      Layout per breakpoint is saved to <code>localStorage</code>. Resize the window to switch
+      breakpoints, then reload to confirm restoration.
+    </p>
+    <div class="controls">
+      <button onclick={reset}>Reset layout</button>
+      <span class="cols-info">Current cols: {currentCols}</span>
+    </div>
+  {/snippet}
+
+  <Grid
+    bind:items
+    {cols}
+    rowHeight={100}
+    onmount={({ cols: c }) => (currentCols = c)}
+    onresize={({ cols: c }) => (currentCols = c)}
+    onpointerup={save}
+  >
+    {#snippet children({ index })}
+      <div class="demo-widget">{index}</div>
+    {/snippet}
+  </Grid>
+</DemoShell>
 
 <style>
   .controls {
@@ -131,12 +116,6 @@
     font-size: 0.9em;
   }
 
-  button:hover {
-    background: #e8e8e8;
-  }
-
-  .cols-info {
-    font-size: 0.85em;
-    color: #888;
-  }
+  button:hover { background: #e8e8e8; }
+  .cols-info { font-size: 0.85em; color: #888; }
 </style>

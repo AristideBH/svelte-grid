@@ -1,10 +1,12 @@
 <script lang="ts">
-  import { browser } from "$app/environment";
-  import { Grid, gridHelp } from "$lib";
-  import type { GridItem, ColsDefinition } from "$lib";
+  import { browser } from '$app/environment';
+  import Grid from '$lib/index.svelte';
+  import { gridHelp } from '$lib/utils/helper';
+  import type { GridItem, ColsDefinition } from '$lib';
+  import DemoShell from '../DemoShell.svelte';
 
-  const id = () => "_" + Math.random().toString(36).substr(2, 9);
-  const KEY = "svelte-grid-example-layout";
+  const id = () => '_' + Math.random().toString(36).substr(2, 9);
+  const KEY = 'svelte-grid-example-layout';
   const cols: ColsDefinition = [[1100, 6]];
 
   const original: GridItem[] = [
@@ -28,33 +30,9 @@
     items = original.map((v) => ({ ...v }));
     if (browser) localStorage.setItem(KEY, JSON.stringify(items));
   }
-</script>
 
-<svelte:head>
-  <title>Example — Serialize / Restore</title>
-</svelte:head>
-
-<div class="example-page">
-  <h2>Serialize / Restore</h2>
-  <p>
-    Layout is saved to <code>localStorage</code> on every change. Reload the page to restore it.
-  </p>
-
-  <div class="controls">
-    <button onclick={reset}>Reset layout</button>
-  </div>
-
-  <div class="demo-container">
-    <Grid bind:items {cols} rowHeight={100} onpointerup={save}>
-      {#snippet children({ index })}
-        <div class="demo-widget">{index}</div>
-      {/snippet}
-    </Grid>
-  </div>
-
-  <details class="source">
-    <summary>View source</summary>
-    <pre><code>{`<script lang="ts">
+  const source = `\
+<script lang="ts">
   import { browser } from '$app/environment';
   import Grid from 'svelte-grid';
   import { gridHelp } from 'svelte-grid/helper';
@@ -81,14 +59,28 @@
   {#snippet children({ index })}
     <div style="height:100%">{index}</div>
   {/snippet}
-</Grid>`}</code></pre>
-  </details>
-</div>
+</Grid>`;
+</script>
+
+<DemoShell title="Serialize / Restore" {source}>
+  {#snippet description()}
+    <p>
+      Layout is saved to <code>localStorage</code> on every change. Reload the page to restore it.
+    </p>
+    <div class="controls">
+      <button onclick={reset}>Reset layout</button>
+    </div>
+  {/snippet}
+
+  <Grid bind:items {cols} rowHeight={100} onpointerup={save}>
+    {#snippet children({ index })}
+      <div class="demo-widget">{index}</div>
+    {/snippet}
+  </Grid>
+</DemoShell>
 
 <style>
-  .controls {
-    margin-bottom: 8px;
-  }
+  .controls { margin-bottom: 8px; }
 
   button {
     padding: 6px 14px;
@@ -99,7 +91,5 @@
     font-size: 0.9em;
   }
 
-  button:hover {
-    background: #e8e8e8;
-  }
+  button:hover { background: #e8e8e8; }
 </style>

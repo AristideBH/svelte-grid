@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { Grid, gridHelp } from "$lib";
-  import type { GridItem, ColsDefinition } from "$lib";
+  import Grid from '$lib/index.svelte';
+  import { gridHelp } from '$lib/utils/helper';
+  import type { GridItem, ColsDefinition } from '$lib';
+  import DemoShell from '../DemoShell.svelte';
 
   const COLS = 6;
   const cols: ColsDefinition = [[1100, COLS]];
-
-  const id = () => "_" + Math.random().toString(36).substr(2, 9);
+  const id = () => '_' + Math.random().toString(36).substr(2, 9);
   const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
   let adjustAfterRemove = $state(false);
@@ -33,51 +34,11 @@
 
   function remove(itemId: string) {
     items = items.filter((v) => v.id !== itemId);
-    if (adjustAfterRemove) {
-      items = gridHelp.adjust(items, COLS);
-    }
+    if (adjustAfterRemove) items = gridHelp.adjust(items, COLS);
   }
-</script>
 
-<svelte:head>
-  <title>Example — Add / Remove</title>
-</svelte:head>
-
-<div class="example-page">
-  <h2>Add / Remove</h2>
-  <p>
-    Dynamically add and remove items. Use <code>findSpace</code> to place new items without
-    overlap, or <code>normalize</code> / <code>adjust</code> after removal.
-  </p>
-
-  <div class="controls">
-    <button onclick={add}>Add (random size)</button>
-    <button onclick={addAt}>Add at (x=0, y=0)</button>
-    <label>
-      <input type="checkbox" bind:checked={adjustAfterRemove} />
-      Adjust after remove
-    </label>
-  </div>
-
-  <div class="demo-container">
-    <Grid bind:items {cols} rowHeight={100}>
-      {#snippet children({ dataItem })}
-        <div class="demo-widget">
-          <button
-            class="remove"
-            onpointerdown={(e) => e.stopPropagation()}
-            onclick={() => remove(dataItem.id)}
-            aria-label="Remove"
-          >✕</button>
-          <p>{dataItem.id}</p>
-        </div>
-      {/snippet}
-    </Grid>
-  </div>
-
-  <details class="source">
-    <summary>View source</summary>
-    <pre><code>{`<script lang="ts">
+  const source = `\
+<script lang="ts">
   import Grid from 'svelte-grid';
   import { gridHelp } from 'svelte-grid/helper';
   import type { GridItem } from 'svelte-grid';
@@ -104,9 +65,39 @@
       <button onpointerdown={(e) => e.stopPropagation()} onclick={() => remove(dataItem.id)}>✕</button>
     </div>
   {/snippet}
-</Grid>`}</code></pre>
-  </details>
-</div>
+</Grid>`;
+</script>
+
+<DemoShell title="Add / Remove" {source}>
+  {#snippet description()}
+    <p>
+      Dynamically add and remove items. Use <code>findSpace</code> to place new items without
+      overlap, or <code>normalize</code> / <code>adjust</code> after removal.
+    </p>
+    <div class="controls">
+      <button onclick={add}>Add (random size)</button>
+      <button onclick={addAt}>Add at (x=0, y=0)</button>
+      <label>
+        <input type="checkbox" bind:checked={adjustAfterRemove} />
+        Adjust after remove
+      </label>
+    </div>
+  {/snippet}
+
+  <Grid bind:items {cols} rowHeight={100}>
+    {#snippet children({ dataItem })}
+      <div class="demo-widget">
+        <button
+          class="remove"
+          onpointerdown={(e) => e.stopPropagation()}
+          onclick={() => remove(dataItem.id)}
+          aria-label="Remove"
+        >✕</button>
+        <p>{dataItem.id}</p>
+      </div>
+    {/snippet}
+  </Grid>
+</DemoShell>
 
 <style>
   .controls {
@@ -126,9 +117,7 @@
     font-size: 0.9em;
   }
 
-  button:hover {
-    background: #e8e8e8;
-  }
+  button:hover { background: #e8e8e8; }
 
   :global(.demo-widget button.remove) {
     position: absolute;
@@ -143,13 +132,6 @@
     padding: 0;
   }
 
-  :global(.demo-widget button.remove:hover) {
-    color: #c00;
-  }
-
-  :global(.demo-widget p) {
-    margin: 0;
-    font-size: 0.75em;
-    color: #666;
-  }
+  :global(.demo-widget button.remove:hover) { color: #c00; }
+  :global(.demo-widget p) { margin: 0; font-size: 0.75em; color: #666; }
 </style>
