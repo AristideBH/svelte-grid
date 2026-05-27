@@ -11,6 +11,9 @@
 
 A responsive, draggable and resizable grid layout for **Svelte 5**, with full TypeScript support.
 
+> **This is a fork of [vaheqelyan/svelte-grid](https://github.com/vaheqelyan/svelte-grid) by [AristideBH](https://github.com/AristideBH).**  
+> The Svelte 5 migration, TypeScript rewrite, SvelteKit demo site, and all new features (multi-directional resize, external drag, compact mode, keyboard accessibility, drag/resize start events) were authored by AristideBH.
+
 > **v6 is a breaking change.** See the [migration guide](#migration-from-v5) below.
 
 ---
@@ -259,4 +262,5 @@ import type { GridItem, BreakpointItem, ColsDefinition, Gap, SnippetArgs } from 
 
 ## License
 
-MIT © [Vahe Araqelyan](https://github.com/vaheqelyan)
+MIT © [Vahe Araqelyan](https://github.com/vaheqelyan) (original library)  
+MIT © [AristideBH](https://github.com/AristideBH) (Svelte 5 migration & new features)
