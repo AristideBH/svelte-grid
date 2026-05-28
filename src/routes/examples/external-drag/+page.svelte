@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Grid, gridHelp, startGridDrag } from "$lib";
   import type { GridItem, ColsDefinition } from "$lib";
+  import DemoShell from '../DemoShell.svelte';
 
   const COLS = 8;
   const cols: ColsDefinition = [[1100, COLS]];
@@ -18,6 +19,8 @@
     { id: id(), [COLS]: gridHelp.item({ x: 0, y: 0, w: 2, h: 2 }) },
     { id: id(), [COLS]: gridHelp.item({ x: 2, y: 0, w: 2, h: 2 }) },
   ]);
+
+  interface ItemData { color: string; label: string }
 
   const source = `\
 <script lang="ts">
@@ -53,71 +56,60 @@
     </div>
   {/snippet}
 </Grid>`;
-
-  interface ItemData { color: string; label: string }
 </script>
 
-<svelte:head><title>Example — External Drag</title></svelte:head>
-
-<div class="example-page">
-  <h2>External drag</h2>
-  <p>
-    Drag a widget from the palette below into the grid. Uses <code>startGridDrag()</code> to encode
-    the dimensions in the drag event, and <code>onexternaldrop</code> to receive the drop.
-  </p>
-
-  <div class="palette">
-    {#each palette as p}
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <div
-        class="palette-item"
-        style="background: {p.color};"
-        draggable="true"
-        ondragstart={(e) => startGridDrag(e, p.w, p.h, { color: p.color, label: p.label })}
-      >
-        {p.label}
-      </div>
-    {/each}
-  </div>
-
-  <div class="demo-container">
-    <Grid
-      bind:items
-      {cols}
-      rowHeight={80}
-      onexternaldrop={({ x, y, w, h, cols: c, data }) => {
-        const d = data as ItemData | undefined;
-        items = [
-          ...items,
-          {
-            id: id(),
-            data: d ?? { color: "#ccc", label: "Widget" },
-            [c]: gridHelp.item({ x, y, w, h }),
-          },
-        ];
-      }}
-    >
-      {#snippet children({ dataItem })}
-        {@const d = dataItem.data as ItemData | undefined}
-        <div class="demo-widget" style="background: {d?.color ?? '#fff'}; color: #fff;">
-          {d?.label ?? dataItem.id.slice(1, 6)}
+<DemoShell title="External drag" {source}>
+  {#snippet description()}
+    <p>
+      Drag a widget from the palette below into the grid. Uses <code>startGridDrag()</code> to encode
+      the dimensions in the drag event, and <code>onexternaldrop</code> to receive the drop.
+    </p>
+    <div class="palette">
+      {#each palette as p}
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+          class="palette-item"
+          style="background: {p.color};"
+          draggable="true"
+          ondragstart={(e) => startGridDrag(e, p.w, p.h, { color: p.color, label: p.label })}
+        >
+          {p.label}
         </div>
-      {/snippet}
-    </Grid>
-  </div>
+      {/each}
+    </div>
+  {/snippet}
 
-  <details class="source">
-    <summary>Source</summary>
-    <pre><code>{source}</code></pre>
-  </details>
-</div>
+  <Grid
+    bind:items
+    {cols}
+    rowHeight={80}
+    onexternaldrop={({ x, y, w, h, cols: c, data }) => {
+      const d = data as ItemData | undefined;
+      items = [
+        ...items,
+        {
+          id: id(),
+          data: d ?? { color: "#ccc", label: "Widget" },
+          [c]: gridHelp.item({ x, y, w, h }),
+        },
+      ];
+    }}
+  >
+    {#snippet children({ dataItem })}
+      {@const d = dataItem.data as ItemData | undefined}
+      <div class="demo-widget" style="background: {d?.color ?? '#fff'}; color: #fff;">
+        {d?.label ?? dataItem.id.slice(1, 6)}
+      </div>
+    {/snippet}
+  </Grid>
+</DemoShell>
 
 <style>
   .palette {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .palette-item {
@@ -132,12 +124,4 @@
   }
 
   .palette-item:active { cursor: grabbing; }
-
-  .source { margin-top: 20px; }
-  .source summary { cursor: pointer; font-size: 0.9em; color: #666; margin-bottom: 6px; }
-  .source pre {
-    background: #f5f5f5; border-radius: 6px; padding: 14px;
-    overflow-x: auto; font-size: 0.82em; line-height: 1.5;
-    white-space: pre-wrap; margin: 0;
-  }
 </style>

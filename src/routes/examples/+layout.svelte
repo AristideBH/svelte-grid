@@ -12,6 +12,7 @@
 
 <style>
   :global(.demo-container) {
+    position: relative;
     background: #eee;
     padding: 10px;
     border-radius: 6px;

@@ -29,9 +29,9 @@
     overflow-y: scroll;
   }
 
-  :global(.svlt-grid-resizer::after) {
+  /* :global(.svlt-grid-resizer::after) {
     border-color: white !important;
-  }
+  } */
 
   :global(.svlt-grid-shadow) {
     border-radius: 6px;

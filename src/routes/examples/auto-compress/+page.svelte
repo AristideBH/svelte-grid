@@ -1,11 +1,8 @@
-<svelte:head>
-  <title>svelte-grid — Auto Compress</title>
-</svelte:head>
-
 <script lang="ts">
   import Grid from '$lib/index.svelte';
   import { gridHelp } from '$lib/utils/helper';
   import type { GridItem, ColsDefinition } from '$lib';
+  import DemoShell from '../DemoShell.svelte';
 
   const cols: ColsDefinition = [[1200, 6], [0, 3]];
 
@@ -38,49 +35,9 @@
       },
     ];
   }
-</script>
 
-<div class="demo-page">
-  <h1>Auto Compress</h1>
-  <p>
-    When <code>autoCompress</code> is enabled, the grid automatically compacts all items upward
-    whenever <code>items</code> changes externally (e.g. after removal or addition). Remove an item
-    to see the gap close instantly.
-  </p>
-
-  <div class="controls">
-    <label class="toggle">
-      <input type="checkbox" bind:checked={autoCompress} />
-      autoCompress = {autoCompress}
-    </label>
-    <button onclick={addItem}>+ Add item</button>
-  </div>
-
-  <div class="demo-container">
-    <Grid bind:items {cols} rowHeight={80} gap={[8, 8]} {autoCompress}>
-      {#snippet children({ movePointerDown, dataItem, item })}
-        <div
-          class="demo-widget"
-          onpointerdown={movePointerDown}
-          role="button"
-          tabindex="0"
-          style="height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:4px; position:relative;"
-        >
-          <strong>{dataItem.data}</strong>
-          <small>{item.w}×{item.h}</small>
-          <button
-            class="remove-btn"
-            onclick={(e) => { e.stopPropagation(); removeItem(dataItem.id); }}
-            aria-label="Remove {dataItem.data}"
-          >×</button>
-        </div>
-      {/snippet}
-    </Grid>
-  </div>
-
-  <details class="source">
-    <summary>View source</summary>
-    <pre><code>{`<script lang="ts">
+  const source = `\
+<script lang="ts">
   import Grid from 'svelte-grid';
   import type { GridItem, ColsDefinition } from 'svelte-grid';
 
@@ -102,23 +59,53 @@
       <button onclick={() => removeItem(dataItem.id)}>×</button>
     </div>
   {/snippet}
-</Grid>`}</code></pre>
-  </details>
-</div>
+</Grid>`;
+</script>
+
+<DemoShell title="Auto Compress" {source}>
+  {#snippet description()}
+    <p>
+      When <code>autoCompress</code> is enabled, the grid automatically compacts all items upward
+      whenever <code>items</code> changes externally (e.g. after removal or addition). Remove an item
+      to see the gap close instantly.
+    </p>
+    <div class="controls">
+      <label class="toggle">
+        <input type="checkbox" bind:checked={autoCompress} />
+        autoCompress = {autoCompress}
+      </label>
+      <button onclick={addItem}>+ Add item</button>
+    </div>
+  {/snippet}
+
+  <Grid bind:items {cols} rowHeight={80} gap={[8, 8]} {autoCompress}>
+    {#snippet children({ movePointerDown, dataItem, item })}
+      <div
+        class="demo-widget"
+        onpointerdown={movePointerDown}
+        role="button"
+        tabindex="0"
+        style="height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:4px; position:relative;"
+      >
+        <strong>{dataItem.data}</strong>
+        <small>{item.w}×{item.h}</small>
+        <button
+          class="remove-btn"
+          onclick={(e) => { e.stopPropagation(); removeItem(dataItem.id); }}
+          aria-label="Remove {dataItem.data}"
+        >×</button>
+      </div>
+    {/snippet}
+  </Grid>
+</DemoShell>
 
 <style>
-  .demo-page {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
   .controls {
     display: flex;
     gap: 1rem;
     align-items: center;
     flex-wrap: wrap;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
   }
 
   .toggle {
@@ -138,9 +125,7 @@
     cursor: pointer;
     font-size: 0.85rem;
   }
-  .controls button:hover {
-    background: #f0f0f0;
-  }
+  .controls button:hover { background: #f0f0f0; }
 
   .remove-btn {
     position: absolute;
@@ -162,30 +147,5 @@
     transition: opacity 0.15s;
   }
 
-  :global(.demo-widget:hover .remove-btn) {
-    opacity: 1;
-  }
-
-  details.source {
-    margin-top: 1.5rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    overflow: hidden;
-  }
-  details.source summary {
-    padding: 8px 14px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    color: #555;
-    background: #fafafa;
-  }
-  details.source pre {
-    margin: 0;
-    padding: 1rem;
-    overflow-x: auto;
-    background: #1e1e1e;
-    color: #d4d4d4;
-    font-size: 0.8rem;
-    line-height: 1.5;
-  }
+  :global(.demo-widget:hover .remove-btn) { opacity: 1; }
 </style>

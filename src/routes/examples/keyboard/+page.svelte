@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Grid, gridHelp } from "$lib";
   import type { GridItem, ColsDefinition } from "$lib";
+  import DemoShell from '../DemoShell.svelte';
 
   const COLS = 6;
   const cols: ColsDefinition = [[1100, COLS]];
@@ -38,35 +39,25 @@
 </style>`;
 </script>
 
-<svelte:head><title>Example — Keyboard accessibility</title></svelte:head>
+<DemoShell title="Keyboard accessibility" {source}>
+  {#snippet description()}
+    <div class="shortcuts">
+      <div class="shortcut"><kbd>Tab</kbd> Focus next item</div>
+      <div class="shortcut"><kbd>↑ ↓ ← →</kbd> Move focused item</div>
+      <div class="shortcut"><kbd>Shift</kbd> + <kbd>↑ ↓ ← →</kbd> Resize focused item</div>
+    </div>
+    <p>Click on any card to focus it, or use <kbd>Tab</kbd> to cycle through items, then use arrow keys.</p>
+  {/snippet}
 
-<div class="example-page">
-  <h2>Keyboard accessibility</h2>
-
-  <div class="shortcuts">
-    <div class="shortcut"><kbd>Tab</kbd> Focus next item</div>
-    <div class="shortcut"><kbd>↑ ↓ ← →</kbd> Move focused item</div>
-    <div class="shortcut"><kbd>Shift</kbd> + <kbd>↑ ↓ ← →</kbd> Resize focused item</div>
-  </div>
-
-  <p>Click on any card to focus it, or use <kbd>Tab</kbd> to cycle through items, then use arrow keys.</p>
-
-  <div class="demo-container">
-    <Grid bind:items {cols} rowHeight={100}>
-      {#snippet children({ dataItem, index })}
-        <div class="demo-widget card" tabindex="-1">
-          <span class="num">{index + 1}</span>
-          <span class="hint">focus → arrows</span>
-        </div>
-      {/snippet}
-    </Grid>
-  </div>
-
-  <details class="source">
-    <summary>Source</summary>
-    <pre><code>{source}</code></pre>
-  </details>
-</div>
+  <Grid bind:items {cols} rowHeight={100}>
+    {#snippet children({ dataItem, index })}
+      <div class="demo-widget card" tabindex="-1">
+        <span class="num">{index + 1}</span>
+        <span class="hint">focus → arrows</span>
+      </div>
+    {/snippet}
+  </Grid>
+</DemoShell>
 
 <style>
   .shortcuts {
@@ -111,17 +102,8 @@
     color: #999;
   }
 
-  /* Focus ring is in MoveResize CSS, but we can enhance it globally */
   :global(.svlt-grid-item:focus-visible) {
     outline: 2px solid #4a90e2 !important;
     outline-offset: 2px;
-  }
-
-  .source { margin-top: 20px; }
-  .source summary { cursor: pointer; font-size: 0.9em; color: #666; margin-bottom: 6px; }
-  .source pre {
-    background: #f5f5f5; border-radius: 6px; padding: 14px;
-    overflow-x: auto; font-size: 0.82em; line-height: 1.5;
-    white-space: pre-wrap; margin: 0;
   }
 </style>

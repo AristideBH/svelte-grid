@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import type { Snippet } from "svelte";
+  import './svelte-grid.css';
   import type { GridItem, BreakpointItem, ColsDefinition, Gap, ExternalDropEvent, CollisionBehavior } from "./types.js";
   import { GridController } from "./GridController.svelte.js";
   import { setGridContext } from "./context.js";
@@ -358,9 +359,3 @@
   {/if}
 </div>
 
-<style>
-  .svlt-grid-container {
-    position: relative;
-    width: 100%;
-  }
-</style>

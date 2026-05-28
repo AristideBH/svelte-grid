@@ -42,6 +42,9 @@
       "types": "./dist/utils/helper.d.ts",
       "import": "./dist/utils/helper.js",
       "require": "./dist/utils/helper.js"
+    },
+    "./styles": {
+      "import": "./dist/svelte-grid.css"
     }
   },
   "svelte": "./dist/index.js",
@@ -58,7 +61,7 @@
     "!dist/**/*.test.*",
     "!dist/**/*.spec.*"
   ],
-  "sideEffects": false,
+  "sideEffects": ["**/*.css"],
   "peerDependencies": {
     "svelte": "^5.0.0"
   },

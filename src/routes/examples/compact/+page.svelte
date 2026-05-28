@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Grid, gridHelp } from "$lib";
   import type { GridItem, ColsDefinition } from "$lib";
+  import DemoShell from '../DemoShell.svelte';
 
   const COLS = 6;
   const cols: ColsDefinition = [[1100, COLS]];
@@ -17,7 +18,6 @@
     { id: id(), [COLS]: gridHelp.item({ x: 3, y: 4, w: 3, h: 2 }) },
   ]);
 
-  // Also expose gridHelp.compact() for manual use
   function compactNow() {
     items = gridHelp.compact(items, COLS);
   }
@@ -42,39 +42,28 @@
 </button>`;
 </script>
 
-<svelte:head><title>Example — Compact (vertical)</title></svelte:head>
+<DemoShell title="Compact (vertical)" {source}>
+  {#snippet description()}
+    <p>
+      With <code>compact={"{true}"}</code>, items are pushed upward to fill gaps after every
+      drag/resize. You can also call <code>gridHelp.compact(items, cols)</code> manually.
+    </p>
+    <p>Toggle compact off, drag an item to create gaps, then toggle back on to see items collapse.</p>
+    <div class="controls">
+      <label>
+        <input type="checkbox" bind:checked={compact} />
+        compact is <strong>{compact ? "enabled" : "disabled"}</strong>
+      </label>
+      <button onclick={compactNow}>Compact now</button>
+    </div>
+  {/snippet}
 
-<div class="example-page">
-  <h2>Compact (vertical)</h2>
-  <p>
-    With <code>compact={"{true}"}</code>, items are pushed upward to fill gaps after every
-    drag/resize. You can also call <code>gridHelp.compact(items, cols)</code> manually.
-  </p>
-  <p>
-    Toggle compact off, drag an item to create gaps, then toggle back on to see items collapse.
-  </p>
-
-  <div class="controls">
-    <label>
-      <input type="checkbox" bind:checked={compact} />
-      compact is <strong>{compact ? "enabled" : "disabled"}</strong>
-    </label>
-    <button onclick={compactNow}>Compact now</button>
-  </div>
-
-  <div class="demo-container">
-    <Grid bind:items {cols} rowHeight={100} {compact}>
-      {#snippet children({ dataItem, index })}
-        <div class="demo-widget">{index + 1}</div>
-      {/snippet}
-    </Grid>
-  </div>
-
-  <details class="source">
-    <summary>Source</summary>
-    <pre><code>{source}</code></pre>
-  </details>
-</div>
+  <Grid bind:items {cols} rowHeight={100} {compact}>
+    {#snippet children({ dataItem, index })}
+      <div class="demo-widget">{index + 1}</div>
+    {/snippet}
+  </Grid>
+</DemoShell>
 
 <style>
   .controls {
@@ -82,7 +71,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 14px;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
   }
 
   button {
@@ -95,12 +84,4 @@
   }
 
   button:hover { background: #e8e8e8; }
-
-  .source { margin-top: 20px; }
-  .source summary { cursor: pointer; font-size: 0.9em; color: #666; margin-bottom: 6px; }
-  .source pre {
-    background: #f5f5f5; border-radius: 6px; padding: 14px;
-    overflow-x: auto; font-size: 0.82em; line-height: 1.5;
-    white-space: pre-wrap; margin: 0;
-  }
 </style>
